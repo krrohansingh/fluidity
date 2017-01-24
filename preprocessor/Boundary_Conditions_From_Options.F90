@@ -536,6 +536,12 @@ contains
                   call deallocate(surface_mesh)
                   deallocate(surface_mesh)
              end if
+             if (have_option(trim(bc_path_i)//"/type[0]/external_density")) then
+                call get_boundary_condition(field, i+1, surface_mesh=surface_mesh)
+                call allocate(scalar_surface_field, surface_mesh, "ExternalDensity")
+                call insert_surface_field(field, i+1, scalar_surface_field)
+                call deallocate(scalar_surface_field)
+             end if
           end if
           
        case ("outflow")
@@ -1188,6 +1194,16 @@ contains
            if(have_option("/mesh_adaptivity/mesh_movement/free_surface/wetting_and_drying")) then
               scalar_surface_field => extract_scalar_surface_field(field, bc_name, name="WettingDryingAlpha")
               call zero(scalar_surface_field)
+           end if
+           if (have_option(trim(bc_path_i)//"/type[0]/external_density")) then
+              call get_boundary_condition(field, i+1, surface_mesh=surface_mesh, &
+                 surface_element_list=surface_element_list)
+              bc_position = get_coordinates_remapped_to_surface(position, surface_mesh, surface_element_list)
+              scalar_surface_field => extract_scalar_surface_field(field, bc_name, name="ExternalDensity")
+              call initialise_field(scalar_surface_field, trim(bc_path_i)//"/type[0]/external_density", &
+                 bc_position, time=time)
+              call deallocate(bc_position)
+          ! map the coordinate field onto this mesh
            end if
 
          case ("no_normal_flow", "outflow")
