@@ -401,13 +401,11 @@ contains
 
           external_density => extract_scalar_surface_field(u, i, "ExternalDensity", stat=external_density_stat)
           have_external_density = external_density_stat==0
+          ! delta_rho is only used when .not. variable_density:
           if (have_external_density) then
-            if (external_density%field_type==FIELD_TYPE_CONSTANT) then
-              delta_rho = rho0 - node_val(external_density, 1)
-            else if (.not. variable_density) then
-              ! this is options checked with an flexit below
-              FLAbort("Non-constant external density without variable density")
-            end if
+            delta_rho = rho0 - node_val(external_density, 1)
+          else
+            delta_rho = rho0
           end if
 
           alpha=1.0/g/dt                        ! delta_rho included in alpha and coeff within element loop
