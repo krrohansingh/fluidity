@@ -357,7 +357,7 @@ contains
            surface_mesh=surface_mesh, &
            surface_element_list=surface_element_list, &
            option_path=fs_option_path)
-        if (bctype=="free_surface") then
+        if (bctype=="free_surface" .and. size(surface_element_list)>0) then
 
           if (have_option(trim(fs_option_path)//"/type[0]/no_normal_stress").and. &
               (.not.have_option(trim(fs_option_path)//"/type[0]/no_normal_stress/explicit"))) then
@@ -778,7 +778,6 @@ contains
       elseif (variable_density) then
         inv_delta_rho_g_quad = 1.0/g/face_val_at_quad(density, sele)
       elseif (have_external_density) then
-        assert(external_density%field_type==FIELD_TYPE_CONSTANT)
         inv_delta_rho_g_quad = 1.0/g/(rho0-node_val(external_density, 1))
       else 
         inv_delta_rho_g_quad = 1.0/g/rho0
@@ -955,7 +954,6 @@ contains
       else if (variable_density) then
         mass_ele=shape_shape(face_shape(p, sele), face_shape(p, sele), detwei/face_val_at_quad(density, sele))
       else if (have_external_density) then 
-        assert(external_density%field_type==FIELD_TYPE_CONSTANT)
         mass_ele = shape_shape(face_shape(p, sele), face_shape(p, sele), detwei) / (rho0 - node_val(external_density, 1))
       else
         mass_ele = shape_shape(face_shape(p, sele), face_shape(p, sele), detwei) / rho0
@@ -1189,7 +1187,6 @@ contains
       else if (variable_density) then
         delta_rho_quad = face_val_at_quad(density, sele)
       else if (have_external_density) then
-        assert(external_density%field_type==FIELD_TYPE_CONSTANT)
         delta_rho_quad = rho0-node_val(external_density, 1)
       else
         delta_rho_quad = rho0
@@ -2189,7 +2186,6 @@ contains
         else if (variable_density) then
           delta_rho_g_quad = g*face_val_at_quad(density, sele)
         else if (have_external_density) then
-          assert(external_density%field_type==FIELD_TYPE_CONSTANT)
           delta_rho_g_quad = g*(rho0-node_val(external_density, 1))
         else
           delta_rho_g_quad = g*rho0
@@ -2802,8 +2798,10 @@ contains
           end if
           external_density => extract_scalar_surface_field(u, i, "ExternalDensity", stat=external_density_stat)
           have_external_density = external_density_stat==0
+
+          if (size(surface_element_list)==0) cycle
+
           if (have_external_density) then
-            assert(external_density%field_type==FIELD_TYPE_CONSTANT)
             delta_rho=rho0-node_val(external_density, 1)
           else
             delta_rho=rho0
@@ -2999,7 +2997,7 @@ contains
             local_have_viscous_free_surface = have_option(trim(bc_option_path)//'/no_normal_stress').and. &
                 .not.have_option(trim(bc_option_path)//'/no_normal_stress/explicit')
             local_have_explicit_free_surface = have_option(trim(bc_option_path)//'/no_normal_stress').and. &
-                .not.have_option(trim(bc_option_path)//'/no_normal_stress/explicit')
+                have_option(trim(bc_option_path)//'/no_normal_stress/explicit')
             have_standard_free_surface=have_standard_free_surface.or. &
                 ((.not.local_have_viscous_free_surface).and.(.not.local_have_explicit_free_surface))
             have_viscous_free_surface=have_viscous_free_surface.or.local_have_viscous_free_surface

@@ -1195,12 +1195,12 @@ contains
               scalar_surface_field => extract_scalar_surface_field(field, bc_name, name="WettingDryingAlpha")
               call zero(scalar_surface_field)
            end if
-           if (have_option(trim(bc_path_i)//"/type[0]/external_density")) then
+           if (have_option(trim(bc_path_i)//"/external_density")) then
               call get_boundary_condition(field, i+1, surface_mesh=surface_mesh, &
                  surface_element_list=surface_element_list)
               bc_position = get_coordinates_remapped_to_surface(position, surface_mesh, surface_element_list)
               scalar_surface_field => extract_scalar_surface_field(field, bc_name, name="ExternalDensity")
-              call initialise_field(scalar_surface_field, trim(bc_path_i)//"/type[0]/external_density", &
+              call initialise_field(scalar_surface_field, trim(bc_path_i)//"/external_density", &
                  bc_position, time=time)
               call deallocate(bc_position)
           ! map the coordinate field onto this mesh
