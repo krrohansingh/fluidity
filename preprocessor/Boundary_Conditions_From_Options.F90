@@ -1198,12 +1198,22 @@ contains
            if (have_option(trim(bc_path_i)//"/external_density")) then
               call get_boundary_condition(field, i+1, surface_mesh=surface_mesh, &
                  surface_element_list=surface_element_list)
-              bc_position = get_coordinates_remapped_to_surface(position, surface_mesh, surface_element_list)
               scalar_surface_field => extract_scalar_surface_field(field, bc_name, name="ExternalDensity")
-              call initialise_field(scalar_surface_field, trim(bc_path_i)//"/external_density", &
-                 bc_position, time=time)
-              call deallocate(bc_position)
-          ! map the coordinate field onto this mesh
+              if (have_option(trim(bc_type_path_i)//"/external_density/from_field")) then
+                ! from_field: The parent field contains the boundary values that you want to apply to surface_field.
+                call get_option(trim(bc_type_path_i)//"/external_density/from_field/parent_field_name", parent_field_name)
+                parent_field => extract_scalar_field(state, parent_field_name, stat)
+                if(stat /= 0) then
+                  FLExit("Could not extract parent field. Check options file?")
+                end if
+                call remap_field_to_surface(parent_field, scalar_surface_field, surface_element_list, stat)
+              else
+                ! constant or python
+                bc_position = get_coordinates_remapped_to_surface(position, surface_mesh, surface_element_list)
+                call initialise_field(scalar_surface_field, trim(bc_path_i)//"/external_density", &
+                   bc_position, time=time)
+                call deallocate(bc_position)
+              end if
            end if
 
          case ("no_normal_flow", "outflow")
