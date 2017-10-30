@@ -2187,7 +2187,9 @@ population_balance =
                      element K3{ real }?,
                      ## enter the value of the coefficient K4 in Coulaloglou's aggregation rate expression. default: 6.0E9
                      element K4{ real }?
-                  }
+                  }|
+                  element prince_blanch_aggregation{ empty }|
+                  element luo_aggregation{empty}
                }
             }?,
             ##
@@ -2210,7 +2212,8 @@ population_balance =
                      element K1{ real }?,
                      ## enter the value of the coefficient K2 in Coulaloglou's aggregation rate expression. default: 0.058
                      element K2{ real }?
-                  }
+                  }|
+                  element prince_blanch_breakage{empty}
                },
                element distribution_function{
                   ##
@@ -2218,7 +2221,8 @@ population_balance =
                   ## McCoy and Madras (2003) used P(v|v') = 2/v' for v<v' and 0 otherwise, where v stands for volume. 
                   ## When written in terms of particle diameter, this converts to P(x|x')=(6x^2)/x'^3 for x<x' and 0 otherwise.
                   element mcCoy_madras_2003{ empty } |
-                  element laakkonen_2007{ empty }
+                  element laakkonen_2007{ empty }|
+                  element coulaloglou_tavlarides{ empty }
                }
             }?
          },
